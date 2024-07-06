@@ -185,8 +185,15 @@ if __name__ == "__main__":
         help="Increase output verbosity",
         action="store_true",
     )
-    args = parser.parse_args()
-
+    # args = parser.parse_args()
+    class args_():
+        def __init__(self):
+            self.proxy = 'https'
+            self.output = "output.txt"
+            self.verbose = True    
+    
+    args = args_()
+    
     if sys.version_info >= (3, 7) and platform.system() == 'Windows':
         loop = asyncio.get_event_loop()
         loop.run_until_complete(scrape(args.proxy, args.output, args.verbose))
