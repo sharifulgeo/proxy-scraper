@@ -128,7 +128,7 @@ class GeneralDivScraper(Scraper):
     
 # For scraping live proxylist from github
 class GitHubScraper(Scraper):
-
+            
     async def handle(self, response):
         tempproxies = response.text.split("\n")
         proxies = set()
