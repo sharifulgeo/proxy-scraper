@@ -129,6 +129,9 @@ class GeneralDivScraper(Scraper):
 # For scraping live proxylist from github
 class GitHubScraper(Scraper):
 
+    def __init__(self, method):
+        super().__init__(method, "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt")
+        
     async def handle(self, response):
         tempproxies = response.text.split("\n")
         proxies = set()
@@ -194,7 +197,7 @@ async def scrape(method, output, verbose):
     await asyncio.gather(*tasks)
     await client.aclose()
 
-    proxies = list(set(proxies))
+    proxies = set(proxies)
     verbose_print(verbose, f"Writing {len(proxies)} proxies to file...")
     with open(output, "w") as f:
         f.write("\n".join(proxies))
