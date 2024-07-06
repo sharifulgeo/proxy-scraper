@@ -107,6 +107,37 @@ class GeneralTableScraper(Scraper):
                 count += 1
         return "\n".join(proxies)
 
+# For websites using div in html
+class GeneralDivScraper(Scraper):
+
+    async def handle(self, response):
+        soup = BeautifulSoup(response.text, "html.parser")
+        proxies = set()
+        table = soup.find("div", attrs={"class": "list"})
+        for row in table.findAll("div"):
+            count = 0
+            proxy = ""
+            for cell in row.findAll("div", attrs={"class": "td"}):
+                if count == 2:
+                    break
+                proxy += cell.text+":"
+                count += 1
+            proxy = proxy.rstrip(":")
+            proxies.add(proxy)
+        return "\n".join(proxies)
+    
+# For scraping live proxylist from github
+class GitHubScraper(Scraper):
+
+    async def handle(self, response):
+        tempproxies = response.text.split("\n")
+        proxies = set()
+        for prxy in tempproxies:
+            if self.method in prxy:
+                proxies.add(prxy.split("//")[-1])
+
+        return "\n".join(proxies)
+
 
 scrapers = [
     SpysMeScraper("http"),
@@ -123,6 +154,11 @@ scrapers = [
     GeneralTableScraper("http", "http://free-proxy-list.net"),
     GeneralTableScraper("http", "http://us-proxy.org"),
     GeneralTableScraper("socks", "http://socks-proxy.net"),
+    GeneralDivScraper("http","https://freeproxy.lunaproxy.com/"),
+    GitHubScraper("http","https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
+    GitHubScraper("socks","https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
+    GitHubScraper("http","https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
+    GitHubScraper("socks","https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
 ]
 
 
@@ -158,6 +194,7 @@ async def scrape(method, output, verbose):
     await asyncio.gather(*tasks)
     await client.aclose()
 
+    proxies = list(set(proxies))
     verbose_print(verbose, f"Writing {len(proxies)} proxies to file...")
     with open(output, "w") as f:
         f.write("\n".join(proxies))
@@ -187,8 +224,9 @@ if __name__ == "__main__":
     )
     # args = parser.parse_args()
     class args_():
+        
         def __init__(self):
-            self.proxy = 'https'
+            self.proxy = 'http'
             self.output = "output.txt"
             self.verbose = True    
     
