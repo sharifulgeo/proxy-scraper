@@ -4,7 +4,7 @@ import platform
 import re
 import sys
 import time
-
+import base64
 import httpx
 from bs4 import BeautifulSoup
 
@@ -127,7 +127,7 @@ class GeneralDivScraper(Scraper):
         return "\n".join(proxies)
     
 # For scraping live proxylist from github
-class GitHubScraper(Scraper):
+class ProtoPlainResponseScraper(Scraper):
             
     async def handle(self, response):
         tempproxies = response.text.split("\n")
@@ -137,7 +137,40 @@ class GitHubScraper(Scraper):
                 proxies.add(prxy.split("//")[-1])
 
         return "\n".join(proxies)
+    
+# For scraping live proxylist from other site with not protocol mentioned
+class NoProtoPlainResponseScraper(Scraper):
+            
+    async def handle(self, response):
+        proxies = set(response.text.split("\n"))
+        return "\n".join(proxies)
+    
+    
+# From https://advanced.name/freeproxy?type=socks4
+class AdvanceNameScraper(Scraper):
 
+    def __init__(self, method):
+        super().__init__(method,
+                         "https://advanced.name/freeproxy?"
+                         "type={method}")
+    def get_url(self, **kwargs):
+        return super().get_url(**kwargs)
+
+    async def handle(self, response):
+        soup = BeautifulSoup(response.text, "html.parser")
+        proxies = set()
+        table = soup.find("table", attrs={"id": "table_proxies"})
+        for row in table.findAll("tr"):
+            count = 0
+            proxy = ""
+            for cell in row.findAll("td"):
+                if count == 1:
+                    proxy += base64.b64decode(cell.attrs['data-ip']).decode('utf-8')
+                if count == 2:
+                    proxy += ":"+base64.b64decode(cell.attrs['data-port']).decode('utf-8')
+                count += 1
+            proxies.add(proxy)
+        return "\n".join(proxies)
 
 scrapers = [
     SpysMeScraper("http"),
@@ -155,10 +188,25 @@ scrapers = [
     GeneralTableScraper("http", "http://us-proxy.org"),
     GeneralTableScraper("socks", "http://socks-proxy.net"),
     GeneralDivScraper("http","https://freeproxy.lunaproxy.com/"),
-    GitHubScraper("http","https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
-    GitHubScraper("socks","https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
-    GitHubScraper("http","https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
-    GitHubScraper("socks","https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
+    ProtoPlainResponseScraper("http","https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
+    ProtoPlainResponseScraper("socks","https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
+    ProtoPlainResponseScraper("http","https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
+    ProtoPlainResponseScraper("socks","https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
+    NoProtoPlainResponseScraper("http","https://yakumo.rei.my.id/HTTP"),
+    NoProtoPlainResponseScraper("socks4","https://yakumo.rei.my.id/SOCKS4"),
+    NoProtoPlainResponseScraper("socks5","https://yakumo.rei.my.id/SOCKS5"),
+    NoProtoPlainResponseScraper("http","https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/http.txt"),
+    NoProtoPlainResponseScraper("https","https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/https.txt"),
+    NoProtoPlainResponseScraper("socks4","https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks4.txt"),
+    NoProtoPlainResponseScraper("socks5","https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks5.txt"),
+    NoProtoPlainResponseScraper("http","https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
+    NoProtoPlainResponseScraper("socks4","https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
+    NoProtoPlainResponseScraper("socks5","https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
+    AdvanceNameScraper("http"),
+    AdvanceNameScraper("https"),
+    AdvanceNameScraper("socks4"),
+    AdvanceNameScraper("socks5"),
+
 ]
 
 
