@@ -129,9 +129,6 @@ class GeneralDivScraper(Scraper):
 # For scraping live proxylist from github
 class GitHubScraper(Scraper):
 
-    def __init__(self, method):
-        super().__init__(method, "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt")
-        
     async def handle(self, response):
         tempproxies = response.text.split("\n")
         proxies = set()
