@@ -16,8 +16,9 @@ except ImportError:
 import pytesseract
 
 
-class Scraper:
-    pytesseract.pytesseract.tesseract_cmd = r"C:/Program Files/Tesseract-OCR/tesseract.exe"
+class Scraper():
+    
+    pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/Cellar/tesseract/5.4.1/bin/tesseract"
     def __init__(self, method, _url):
         self.method = method
         self._url = _url
@@ -235,7 +236,7 @@ class ProxyListOrgScraper(Scraper):
             count = 0
             proxy = ""
             for cell in row.findAll("li", attrs={"class": "proxy"}):
-                proxy = base64.b64decode(re.findall("\(\'(.*)\'\)",str(cell))[0]).decode('utf-8')
+                proxy = base64.b64decode(re.findall("\\(\\'(.*)\\'\\)",str(cell))[0]).decode('utf-8')
                 count += 1
             if proxy:
                 proxies.add(proxy)
@@ -253,6 +254,7 @@ class FreeProxySaleScraper(Scraper):
     async def handle(self, response):
         soup = BeautifulSoup(response.text, "html.parser")
         proxies = set()
+        page_total = soup.find_all('button',attrs={'class':'pagination__item'})[-1].text
         table = soup.find_all("div", attrs={"class": "css-ckmntm"})
         for row in table:
             count = 0
@@ -270,8 +272,10 @@ class FreeProxySaleScraper(Scraper):
                 count += 1
             if proxy:
                 proxy = proxy.rstrip('\n')
-                proxies.add(proxy)
-                proxy = ""
+                proxy_type = row.find('a',attrs={'class':'css-qdp10g'}).text.lower()
+                if proxy_type in [self.method.lower()]:
+                    proxies.add(proxy)
+                    proxy = ""
         return "\n".join(proxies)
 
 
@@ -321,7 +325,9 @@ scrapers = [
     ProxyListOrgScraper("https"),
 
     FreeProxySaleScraper("http"),
+    FreeProxySaleScraper("https"),
     FreeProxySaleScraper("socks4"),
+    FreeProxySaleScraper("socks5"),
 
 
 
