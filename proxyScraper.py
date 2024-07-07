@@ -248,6 +248,7 @@ class ProxyListOrgScraper(Scraper):
         return super().get_url(**kwargs)
 
     async def handle(self, response):
+        print(f"Scraping {response.url} / {self.page_total}......")
         soup = BeautifulSoup(response.text, "html.parser")
         proxies = set()
         table = soup.find("div", attrs={"class": "table"})
