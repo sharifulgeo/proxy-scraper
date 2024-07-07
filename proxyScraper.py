@@ -10,10 +10,10 @@ import io
 from bs4 import BeautifulSoup
 print(sys.executable)
 try:
-    import Image
+    import Image # type: ignore
 except ImportError:
     from PIL import Image
-import pytesseract
+import pytesseract  # noqa: E402
 
 
 class Scraper():
@@ -43,7 +43,7 @@ class Scraper():
     async def scrape(self, client):
         pattern = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}(?::\d{1,5})?")
         if isinstance(self._url,list):
-            N=26
+            N=len(self._url)
             mylist = [self.__url[(i*len(self.__url))//N:((i+1)*len(self.__url))//N] for i in range(N)]
             for u_ in mylist:
                 for um_ in u_:
@@ -231,13 +231,16 @@ class FreeProxyWorldScraper(Scraper):
 class ProxyListOrgScraper(Scraper):
 
     def __init__(self, method):
+        self.rsp = httpx.get("https://proxy-list.org/english/search.php",headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
+        self.pagersoup = BeautifulSoup(self.rsp , "html.parser")
+        self.page_total = self.pagersoup.find_all('a',attrs={'class':'item'})[-1].text
         if method == 'http':
             self.search = "ssl-no"
             self.ssl = "no"
         elif method == 'https':
             self.search = "ssl-yes"
             self.ssl = "yes"
-        self.url = f"https://proxy-list.org/english/search.php?search={self.search}&country=any&type=any&port=any&ssl={self.ssl}"
+        self.url = [f"https://proxy-list.org/english/search.php?search={self.search}&country=any&type=any&port=any&ssl={self.ssl}&p={pg}" for pg in range(1,int(self.page_total)+1)]
         
         super().__init__(method,self.url)
 
@@ -354,7 +357,7 @@ scrapers = [
     #"https://proxydb.net/?protocol=http"   uses js to render so tough so not implemented
     #"https://www.freeproxy.world/?type=https&anonymity=&country=&speed=&port=&page=1" done---- but no pagination
     #"https://proxy-list.org/english/search.php?search=ssl-no&country=any&type=any&port=any&ssl=no" done---- but no pagination
-    #"https://free.proxy-sale.com/en/" port no is image so not implemented
+    #"https://free.proxy-sale.com/en/" done with pagination but slow
     #"https://www.proxyrack.com/free-proxy-list/"
     #"https://www.lumiproxy.com/free-proxy/"
     #"https://proxy-tools.com/proxy"
