@@ -20,7 +20,7 @@ class Scraper:
         return self._url.format(**kwargs, method=self.method)
 
     async def get_response(self, client):
-        return await client.get(self.get_url())
+        return await client.get(self.get_url(),headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
 
     async def handle(self, response):
         return response.text
@@ -109,7 +109,7 @@ class GeneralTableScraper(Scraper):
         return "\n".join(proxies)
 
 # For websites using div in html
-class GeneralDivScraper(Scraper):
+class LunaProxyScraper(Scraper):
 
     async def handle(self, response):
         soup = BeautifulSoup(response.text, "html.parser")
@@ -124,7 +124,8 @@ class GeneralDivScraper(Scraper):
                 proxy += cell.text+":"
                 count += 1
             proxy = proxy.rstrip(":")
-            proxies.add(proxy)
+            if proxy:
+                proxies.add(proxy)
         return "\n".join(proxies)
     
 # For scraping live proxylist from github
@@ -171,8 +172,92 @@ class AdvanceNameScraper(Scraper):
                 if count == 2:
                     proxy += ":"+base64.b64decode(cell.attrs['data-port']).decode('utf-8')
                 count += 1
-            proxies.add(proxy)
+            if proxy:
+                proxies.add(proxy)
         return "\n".join(proxies)
+
+#From "https://www.freeproxy.world/?type=https&anonymity=&country=&speed=&port=&page=1"
+class FreeProxyWorldScraper(Scraper):
+
+    def __init__(self, method):
+        super().__init__(method,
+                         "https://www.freeproxy.world/?type="
+                         "{method}&anonymity=&country=&speed=&port=&page=1")
+
+    def get_url(self, **kwargs):
+        return super().get_url(**kwargs)
+
+    async def handle(self, response):
+        soup = BeautifulSoup(response.text, "html.parser")
+        proxies = set()
+        table = soup.find("table", attrs={"class": "layui-table"})
+        for row in table.findAll("tr"):
+            count = 0
+            proxy = ""
+            for cell in row.findAll("td"):
+                if count == 0:
+                    proxy += cell.text.replace("\n", "")
+                if count == 1:
+                    proxy += ":"+cell.text.replace("\n", "")
+                count += 1
+            if proxy:
+                proxies.add(proxy)
+        return "\n".join(proxies)
+
+#From "https://proxy-list.org/english/search.php?search=ssl-no&country=any&type=any&port=any&ssl=no"
+class ProxyListOrgScraper(Scraper):
+
+    def __init__(self, method):
+        if method == 'http':
+            self.search = "ssl-no"
+            self.ssl = "no"
+        elif method == 'https':
+            self.search = "ssl-yes"
+            self.ssl = "yes"
+        self.url = f"https://proxy-list.org/english/search.php?search={self.search}&country=any&type=any&port=any&ssl={self.ssl}"
+        
+        super().__init__(method,self.url)
+
+    def get_url(self, **kwargs):
+        return super().get_url(**kwargs)
+
+    async def handle(self, response):
+        soup = BeautifulSoup(response.text, "html.parser")
+        proxies = set()
+        table = soup.find("div", attrs={"class": "table"})
+        for row in table.findAll("ul"):
+            count = 0
+            proxy = ""
+            for cell in row.findAll("li", attrs={"class": "proxy"}):
+                proxy = base64.b64decode(re.findall("\(\'(.*)\'\)",str(cell))[0]).decode('utf-8')
+                count += 1
+            if proxy:
+                proxies.add(proxy)
+        return "\n".join(proxies)
+
+#From "https://free.proxy-sale.com/en/https/"
+class FreeProxySaleScraper(Scraper):
+
+    def __init__(self, method):
+        super().__init__(method,f"https://free.proxy-sale.com/en/{method}/")
+
+    def get_url(self, **kwargs):
+        return super().get_url(**kwargs)
+
+    async def handle(self, response):
+        soup = BeautifulSoup(response.text, "html.parser")
+        proxies = set()
+        table = soup.find("div", attrs={"class": "css-cssveg"})
+        for row in table.findAll("p"):
+            count = 0
+            proxy = ""
+            for cell in row.findAll("li", attrs={"class": "proxy"}):
+                proxy = base64.b64decode(re.findall("\(\'(.*)\'\)",str(cell))[0]).decode('utf-8')
+                count += 1
+            if proxy:
+                proxies.add(proxy)
+        return "\n".join(proxies)
+
 
 scrapers = [
     SpysMeScraper("http"),
@@ -189,7 +274,7 @@ scrapers = [
     GeneralTableScraper("http", "http://free-proxy-list.net"),
     GeneralTableScraper("http", "http://us-proxy.org"),
     GeneralTableScraper("socks", "http://socks-proxy.net"),
-    GeneralDivScraper("http", "https://freeproxy.lunaproxy.com/"),
+    LunaProxyScraper("http", "https://freeproxy.lunaproxy.com/"),
     ProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
     ProtoPlainResponseScraper("socks", "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
     ProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
@@ -204,10 +289,43 @@ scrapers = [
     NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
     NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
     NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
+    NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
+    NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
+    NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
     AdvanceNameScraper("http"),
     AdvanceNameScraper("https"),
     AdvanceNameScraper("socks4"),
     AdvanceNameScraper("socks5"),
+
+    FreeProxyWorldScraper("http"),
+    FreeProxyWorldScraper("https"),
+    FreeProxyWorldScraper("socks4"),
+    FreeProxyWorldScraper("socks5"),
+    ProxyListOrgScraper("http"),
+    ProxyListOrgScraper("https"),
+
+    FreeProxySaleScraper("http"),
+    FreeProxySaleScraper("socks4"),
+
+
+
+    #"http://free-proxy.cz/en/proxylist/country/all/https/ping/all"   very slow so not implemented
+    #"https://proxydb.net/?protocol=http"   uses js to render so tough so not implemented
+    #"https://www.freeproxy.world/?type=https&anonymity=&country=&speed=&port=&page=1" done---- but no pagination
+    #"https://proxy-list.org/english/search.php?search=ssl-no&country=any&type=any&port=any&ssl=no" done---- but no pagination
+    #"https://free.proxy-sale.com/en/"
+    #"https://www.proxyrack.com/free-proxy-list/"
+    #"https://www.lumiproxy.com/free-proxy/"
+    #"https://proxy-tools.com/proxy"
+    #"https://www.uvm.edu/~bmcelvan/docs/Free Proxy List – Fast & High Only Public Proxy Servers (IP PORT) – Hide My Ass! - Custom search #1292985.htm"
+    #"https://www.experte.com/proxy-server"
+    #"https://fineproxy.org/free-proxies/europe/germany/"
+    #"https://premproxy.com/list/type-01.htm"
+    #"https://tools.proxy-solutions.net/en/free-proxy"
+    #"https://proxy-port.com/en/free-proxy-list"
+    #"https://www.pyproxy.com/proxyfree/"
+    #"https://www.proxydocker.com/en/proxylist/country/All"
+
 
 ]
 
