@@ -43,9 +43,12 @@ class Scraper():
     async def scrape(self, client):
         pattern = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}(?::\d{1,5})?")
         if isinstance(self._url,list):
-            for u_ in self.__url:
-                response = await self.get_response(u_,client)
-                self.proxies_.append(await self.handle(response))
+            N=26
+            mylist = [self.__url[(i*len(self.__url))//N:((i+1)*len(self.__url))//N] for i in range(N)]
+            for u_ in mylist:
+                for um_ in u_:
+                    response = await self.get_response(um_,client)
+                    self.proxies_.append(await self.handle(response))
         else:
             response = await self.get_response(self._url,client)
             self.proxies_.append(await self.handle(response))
