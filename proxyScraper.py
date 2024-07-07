@@ -259,7 +259,7 @@ class ProxyListOrgScraper(Scraper):
 class FreeProxySaleScraper(Scraper):
         
     def __init__(self, method):
-        self.rsp = httpx.get("https://free.proxy-sale.com/ru/")
+        self.rsp = httpx.get("https://free.proxy-sale.com/ru/",headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
         self.pagersoup = BeautifulSoup(self.rsp , "html.parser")
         self.page_total = self.pagersoup.find_all('button',attrs={'class':'pagination__item'})[-1].text
         super().__init__(method,[f"https://free.proxy-sale.com/ru/?page={p}"for p in range(1,int(self.page_total)+2)])
