@@ -260,6 +260,7 @@ class ProxyListOrgScraper(Scraper):
                 count += 1
             if proxy:
                 proxies.add(proxy)
+        print(proxies,"----------/////////////")
         return "\n".join(proxies)
 
 #From "https://free.proxy-sale.com/en/https/"
