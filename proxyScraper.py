@@ -153,6 +153,7 @@ class AdvanceNameScraper(Scraper):
         super().__init__(method,
                          "https://advanced.name/freeproxy?"
                          "type={method}")
+                         
     def get_url(self, **kwargs):
         return super().get_url(**kwargs)
 
@@ -187,21 +188,21 @@ scrapers = [
     GeneralTableScraper("http", "http://free-proxy-list.net"),
     GeneralTableScraper("http", "http://us-proxy.org"),
     GeneralTableScraper("socks", "http://socks-proxy.net"),
-    GeneralDivScraper("http","https://freeproxy.lunaproxy.com/"),
-    ProtoPlainResponseScraper("http","https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
-    ProtoPlainResponseScraper("socks","https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
-    ProtoPlainResponseScraper("http","https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
-    ProtoPlainResponseScraper("socks","https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
-    NoProtoPlainResponseScraper("http","https://yakumo.rei.my.id/HTTP"),
-    NoProtoPlainResponseScraper("socks4","https://yakumo.rei.my.id/SOCKS4"),
-    NoProtoPlainResponseScraper("socks5","https://yakumo.rei.my.id/SOCKS5"),
-    NoProtoPlainResponseScraper("http","https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/http.txt"),
-    NoProtoPlainResponseScraper("https","https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/https.txt"),
-    NoProtoPlainResponseScraper("socks4","https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks4.txt"),
-    NoProtoPlainResponseScraper("socks5","https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks5.txt"),
-    NoProtoPlainResponseScraper("http","https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
-    NoProtoPlainResponseScraper("socks4","https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
-    NoProtoPlainResponseScraper("socks5","https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
+    GeneralDivScraper("http", "https://freeproxy.lunaproxy.com/"),
+    ProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
+    ProtoPlainResponseScraper("socks", "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
+    ProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
+    ProtoPlainResponseScraper("socks", "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
+    NoProtoPlainResponseScraper("http", "https://yakumo.rei.my.id/HTTP"),
+    NoProtoPlainResponseScraper("socks4", "https://yakumo.rei.my.id/SOCKS4"),
+    NoProtoPlainResponseScraper("socks5", "https://yakumo.rei.my.id/SOCKS5"),
+    NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/http.txt"),
+    NoProtoPlainResponseScraper("https", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/https.txt"),
+    NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks4.txt"),
+    NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks5.txt"),
+    NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
+    NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
+    NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
     AdvanceNameScraper("http"),
     AdvanceNameScraper("https"),
     AdvanceNameScraper("socks4"),
@@ -271,6 +272,7 @@ if __name__ == "__main__":
         action="store_true",
     )
     # args = parser.parse_args()
+
     class args_():
         
         def __init__(self):
