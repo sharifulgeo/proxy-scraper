@@ -1,10 +1,11 @@
 import argparse
 import asyncio
+import base64
 import platform
 import re
 import sys
 import time
-import base64
+
 import httpx
 from bs4 import BeautifulSoup
 
@@ -153,7 +154,7 @@ class AdvanceNameScraper(Scraper):
         super().__init__(method,
                          "https://advanced.name/freeproxy?"
                          "type={method}")
-                         
+
     def get_url(self, **kwargs):
         return super().get_url(**kwargs)
 
