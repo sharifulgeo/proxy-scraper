@@ -300,7 +300,7 @@ class FreeProxySaleScraper(Scraper):
                 proxy_type = row.find('a',attrs={'class':'css-qdp10g'}).text.lower()
                 if proxy_type in [self.method.lower()]:
                     proxiess.append(proxy)
-                    proxy = ""
+            proxy = ""
                 # print(proxy,"From FreeProxySaleScraper ----------/////////////")
         return "\n".join(proxiess)
 
