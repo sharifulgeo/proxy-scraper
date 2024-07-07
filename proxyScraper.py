@@ -260,7 +260,7 @@ class ProxyListOrgScraper(Scraper):
                 count += 1
             if proxy:
                 proxies.add(proxy)
-        print(proxies,"From ProxyListOrgScraper ----------/////////////")
+        # print(proxies,"From ProxyListOrgScraper ----------/////////////")
         return "\n".join(proxies)
 
 #From "https://free.proxy-sale.com/en/https/"
@@ -301,7 +301,7 @@ class FreeProxySaleScraper(Scraper):
                 if proxy_type in [self.method.lower()]:
                     proxiess.append(proxy)
                     proxy = ""
-        print(proxiess,"From FreeProxySaleScraper ----------/////////////")
+                # print(proxy,"From FreeProxySaleScraper ----------/////////////")
         return "\n".join(proxiess)
 
 
