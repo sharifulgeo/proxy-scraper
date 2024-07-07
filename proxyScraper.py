@@ -22,21 +22,34 @@ class Scraper():
     def __init__(self, method, _url):
         self.method = method
         self._url = _url
+        self.__url = []
+        self.proxies_ = []
+        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'}
 
     def get_url(self, **kwargs):
-        return self._url.format(**kwargs, method=self.method)
+        if isinstance(self._url,list):
+            for u_ in self._url:
+                self.__url.append(u_.format(**kwargs, method=self.method))
+        else:
+            self.__url =  self._url.format(**kwargs, method=self.method)
+        return self.__url
 
-    async def get_response(self, client):
-        return await client.get(self.get_url(),headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
+    async def get_response(self,url_, client):
+        return await client.get(url_,headers=self.headers)
 
     async def handle(self, response):
         return response.text
 
     async def scrape(self, client):
-        response = await self.get_response(client)
-        proxies = await self.handle(response)
         pattern = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}(?::\d{1,5})?")
-        return re.findall(pattern, proxies)
+        if isinstance(self._url,list):
+            for u_ in self.__url:
+                response = await self.get_response(u_,client)
+                self.proxies_.append(await self.handle(response))
+        else:
+            response = await self.get_response(self._url,client)
+            self.proxies_.append(await self.handle(response))
+        return re.findall(pattern, ''.join(self.proxies_))
 
 
 # From spys.me
@@ -244,18 +257,21 @@ class ProxyListOrgScraper(Scraper):
 
 #From "https://free.proxy-sale.com/en/https/"
 class FreeProxySaleScraper(Scraper):
-
+        
     def __init__(self, method):
-        super().__init__(method,f"https://free.proxy-sale.com/en/{method}/")
+        self.rsp = httpx.get("https://free.proxy-sale.com/ru/")
+        self.pagersoup = BeautifulSoup(self.rsp , "html.parser")
+        self.page_total = self.pagersoup.find_all('button',attrs={'class':'pagination__item'})[-1].text
+        super().__init__(method,[f"https://free.proxy-sale.com/ru/?page={p}"for p in range(1,int(self.page_total)+2)])
 
     def get_url(self, **kwargs):
         return super().get_url(**kwargs)
 
     async def handle(self, response):
         soup = BeautifulSoup(response.text, "html.parser")
-        proxies = set()
-        page_total = soup.find_all('button',attrs={'class':'pagination__item'})[-1].text
         table = soup.find_all("div", attrs={"class": "css-ckmntm"})
+        proxiess = []
+        print(f"Scraping {response.url} / {self.page_total}......")
         for row in table:
             count = 0
             proxy = ""
@@ -265,7 +281,7 @@ class FreeProxySaleScraper(Scraper):
                 elif count ==0:
                     proxy += cell.text
                 elif count==1:
-                    port_image_url = self._url.split("/en")[0]+cell.find('img').attrs['src']
+                    port_image_url = response.url.scheme+"://"+response.url.host+cell.find('img').attrs['src']
                     r = httpx.get(port_image_url)
                     img = Image.open(io.BytesIO(r.content))
                     proxy +=":"+ pytesseract.image_to_string(img)
@@ -274,9 +290,9 @@ class FreeProxySaleScraper(Scraper):
                 proxy = proxy.rstrip('\n')
                 proxy_type = row.find('a',attrs={'class':'css-qdp10g'}).text.lower()
                 if proxy_type in [self.method.lower()]:
-                    proxies.add(proxy)
+                    proxiess.append(proxy)
                     proxy = ""
-        return "\n".join(proxies)
+        return "\n".join(proxiess)
 
 
 scrapers = [
@@ -378,7 +394,7 @@ async def scrape(method, output, verbose):
         except Exception:
             pass
 
-    for scraper in proxy_scrapers:
+    for scraper in proxy_scrapers[:]:
         tasks.append(asyncio.ensure_future(scrape_scraper(scraper)))
 
     await asyncio.gather(*tasks)
