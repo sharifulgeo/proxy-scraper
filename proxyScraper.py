@@ -11,6 +11,7 @@ import random
 import requests
 from bs4 import BeautifulSoup
 print(sys.executable)
+from CloudFlareProxySites import *
 try:
     import Image # type: ignore
 except ImportError:
@@ -321,57 +322,57 @@ class FreeProxySaleScraper(Scraper):
 
 
 scrapers = [
-    SpysMeScraper("http"),
-    SpysMeScraper("socks"),
-    ProxyScrapeScraper("http"),
-    ProxyScrapeScraper("socks4"),
-    ProxyScrapeScraper("socks5"),
-    GeoNodeScraper("socks"),
-    ProxyListDownloadScraper("https", "elite"),
-    ProxyListDownloadScraper("http", "elite"),
-    ProxyListDownloadScraper("http", "transparent"),
-    ProxyListDownloadScraper("http", "anonymous"),
-    # GeneralTableScraper("https", "http://sslproxies.org"),  #uses cloudflare so it needs another treatment
-    GeneralTableScraper("http", "http://free-proxy-list.net"),
-    GeneralTableScraper("http", "http://us-proxy.org"),
-    GeneralTableScraper("socks", "http://socks-proxy.net"),
-    LunaProxyScraper("http", "https://freeproxy.lunaproxy.com/"),
-    ProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
-    ProtoPlainResponseScraper("socks", "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
-    ProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
-    ProtoPlainResponseScraper("socks", "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
-    NoProtoPlainResponseScraper("http", "https://yakumo.rei.my.id/HTTP"),
-    NoProtoPlainResponseScraper("socks4", "https://yakumo.rei.my.id/SOCKS4"),
-    NoProtoPlainResponseScraper("socks5", "https://yakumo.rei.my.id/SOCKS5"),
-    NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/http.txt"),
-    NoProtoPlainResponseScraper("https", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/https.txt"),
-    NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks4.txt"),
-    NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks5.txt"),
-    NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
-    NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
-    NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
-    NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
-    NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
-    NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
-    AdvanceNameScraper("http"),
-    AdvanceNameScraper("https"),
-    AdvanceNameScraper("socks4"),
-    AdvanceNameScraper("socks5"),
+    # SpysMeScraper("http"),
+    # SpysMeScraper("socks"),
+    # ProxyScrapeScraper("http"),
+    # ProxyScrapeScraper("socks4"),
+    # ProxyScrapeScraper("socks5"),
+    # GeoNodeScraper("socks"),
+    # ProxyListDownloadScraper("https", "elite"),
+    # ProxyListDownloadScraper("http", "elite"),
+    # ProxyListDownloadScraper("http", "transparent"),
+    # ProxyListDownloadScraper("http", "anonymous"),
+    # GeneralTableScraper("https", ["http://sslproxies.org"]),  #uses cloudflare so it needs another treatment
+    # GeneralTableScraper("http", "http://free-proxy-list.net"),
+    # GeneralTableScraper("http", "http://us-proxy.org"),
+    # GeneralTableScraper("socks", "http://socks-proxy.net"),
+    # LunaProxyScraper("http", "https://freeproxy.lunaproxy.com/"),
+    # ProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
+    # ProtoPlainResponseScraper("socks", "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"),
+    # ProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
+    # ProtoPlainResponseScraper("socks", "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/all.txt"),
+    # NoProtoPlainResponseScraper("http", "https://yakumo.rei.my.id/HTTP"),
+    # NoProtoPlainResponseScraper("socks4", "https://yakumo.rei.my.id/SOCKS4"),
+    # NoProtoPlainResponseScraper("socks5", "https://yakumo.rei.my.id/SOCKS5"),
+    # NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/http.txt"),
+    # NoProtoPlainResponseScraper("https", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/https.txt"),
+    # NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks4.txt"),
+    # NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks5.txt"),
+    # NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
+    # NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
+    # NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
+    # NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
+    # NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
+    # NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
+    # AdvanceNameScraper("http"),
+    # AdvanceNameScraper("https"),
+    # AdvanceNameScraper("socks4"),
+    # AdvanceNameScraper("socks5"),
 
-    FreeProxyWorldScraper("http"),
-    FreeProxyWorldScraper("https"),
-    FreeProxyWorldScraper("socks4"),
-    FreeProxyWorldScraper("socks5"),
+    # FreeProxyWorldScraper("http"),
+    # FreeProxyWorldScraper("https"),
+    # FreeProxyWorldScraper("socks4"),
+    # FreeProxyWorldScraper("socks5"),
 
-    ProxyListOrgScraper("http"),
-    ProxyListOrgScraper("https"),
+    # ProxyListOrgScraper("http"),
+    # ProxyListOrgScraper("https"),
 
-    FreeProxySaleScraper("http"),
-    FreeProxySaleScraper("https"),
-    FreeProxySaleScraper("socks4"),
-    FreeProxySaleScraper("socks5"),
+    # FreeProxySaleScraper("http"),
+    # FreeProxySaleScraper("https"),
+    # FreeProxySaleScraper("socks4"),
+    # FreeProxySaleScraper("socks5"),
 
-
+    CloudFlareProxySitesRunner("https",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)])
 
     #"http://free-proxy.cz/en/proxylist/country/all/https/ping/all"   very slow so not implemented
     #"https://proxydb.net/?protocol=http"   uses js to render so tough so not implemented
