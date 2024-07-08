@@ -1,33 +1,33 @@
 import cloudscraper
 import re
 from bs4 import BeautifulSoup
+import asyncio
+# import aiocfscrape #import CloudflareScraper
 
+proxies_collected = []
 
 class MyException(Exception):
     pass
 
-class CloudFlareProxySites(MyException):
-    def __init__(self) -> None:
-        self.method = ['http'] #to be replaced by child calsses
+class CloudFlareProxySitesScraper(MyException):
+    def __init__(self,method,url) -> None:
+        self.method = method #to be replaced by child classes
         self.scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
-        self.urls = [] #"https://hide.mn/en/proxy-list/#list"
+        self.url = url #"https://hide.mn/en/proxy-list/#list"
         self.proxies = []
-        self.raw_response =''
+        self.raw_response = []
         self.processed_response =''
         self.pattern = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}(?::\d{1,5})?")
         
-    def scrape_url(self, url):
-        # print(self.scraper.get(url).text)  # => "<!DOCTYPE html><html><head>..."
+    async def scrape_url(self, url) -> str:
         return self.scraper.get(url).text
     
-    def response_processor(self,rsp):
+    async def response_processor(self,rsp) -> str:
         soup = BeautifulSoup(rsp, "html.parser")
         proxies = set()
-        # table_div = soup.find("div", attrs={"class": "table_block"})
-        # table = table_div.find("table")
         tables = soup.find_all("table")
         if  len(tables)<1:
-            raise MyException("Extracted no table for IP and Port!")
+            raise MyException("Extracted no table for IP and Port for site {rsp.url}.")
         else:
             table = tables[0]
         for row in table.findAll("tr")[1:]: ## starting from index 1 to skip table header
@@ -40,20 +40,35 @@ class CloudFlareProxySites(MyException):
                     proxy += ":"+cell.text.replace("&nbsp;", "").strip()
                 elif count == 4:
                     mthd = cell.text.replace("&nbsp;", "").strip()
-                    if mthd.lower() in self.method:
+                    if mthd.lower() in [self.method]:
                         proxies.add(proxy)
                 count += 1
         # self.processed_response = "\n".join(proxies)
         return "\n".join(proxies)
     
-    def proxy_collector(self):
-        for ur in self.urls:
-            print(f"Scraping {ur} .............")
-            self.raw_response =self.scrape_url(ur)
-            self.processed_response = self.response_processor(self.raw_response)
-            self.proxies.extend(re.findall(self.pattern, self.processed_response))
+    async def proxy_collector(self) -> None:
+        print(f"Scraping {self.url} .............")
+        self.raw_response.append(await self.scrape_url(self.url))
+        self.processed_response = await self.response_processor(''.join(self.raw_response))
+        self.proxies.extend(re.findall(self.pattern, self.processed_response))
+        proxies_collected.extend(self.proxies)
+        # return self.proxies
 
-cls = CloudFlareProxySites()
-cls.urls = [f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,12608,64)]
-cls.proxy_collector()
-print(cls.proxies)
+    
+class CloudFlareProxySitesRunner(CloudFlareProxySitesScraper):
+    def __init__(self,mthd,ulrs):
+        self.method = mthd
+        self.urls = ulrs   # to changed by the instance classes
+        # super().__init__()
+    
+    async def runner_(self):
+        asyncio.gather(*(CloudFlareProxySitesScraper(self.method,ur).proxy_collector() for ur in self.urls))
+            
+            
+
+if __name__ == '__main__':
+    uris = [f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,12608,64)]
+    asyncio.run(CloudFlareProxySitesRunner('http',uris).runner_())
+    
+    with open("output.txt", "w") as f:
+        f.write("\n".join(proxies_collected))
