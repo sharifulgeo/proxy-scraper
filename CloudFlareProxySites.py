@@ -3,7 +3,10 @@ import re
 from bs4 import BeautifulSoup
 
 
-class CloudFlareProxySites():
+class MyException(Exception):
+    pass
+
+class CloudFlareProxySites(MyException):
     def __init__(self) -> None:
         self.method = ['http'] #to be replaced by child calsses
         self.scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
@@ -24,7 +27,7 @@ class CloudFlareProxySites():
         # table = table_div.find("table")
         tables = soup.find_all("table")
         if  len(tables)<1:
-            pass
+            raise MyException("Extracted no table for IP and Port!")
         else:
             table = tables[0]
         for row in table.findAll("tr")[1:]: ## starting from index 1 to skip table header
@@ -45,9 +48,10 @@ class CloudFlareProxySites():
     
     def proxy_collector(self):
         for ur in self.urls:
+            print(f"Scraping {ur} .............")
             self.raw_response =self.scrape_url(ur)
             self.processed_response = self.response_processor(self.raw_response)
-            self.proxies.extend(re.findall(self.pattern, self.response_processor(self.processed_response)))
+            self.proxies.extend(re.findall(self.pattern, self.processed_response))
 
 cls = CloudFlareProxySites()
 cls.urls = ["https://hide.mn/en/proxy-list/#list"]
