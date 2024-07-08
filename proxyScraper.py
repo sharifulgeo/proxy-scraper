@@ -50,11 +50,11 @@ class Scraper():
             mylist = [self.__url[(i*len(self.__url))//N:((i+1)*len(self.__url))//N] for i in range(N)]
             for u_ in mylist:
                 for um_ in u_:
-                    async with  httpx.AsyncClient(follow_redirects=True,timeout=50) as client:
+                    async with  httpx.AsyncClient(limits=httpx.Limits(max_connections=None, max_keepalive_connections=20)) as client:
                         response = await self.get_response(um_,client)
                         self.proxies_.append(await self.handle(response))
         else:
-            async with  httpx.AsyncClient(follow_redirects=True,timeout=50) as client:
+            async with  httpx.AsyncClient(limits=httpx.Limits(max_connections=None, max_keepalive_connections=20)) as client:
                 response = await self.get_response(self._url,client)
                 self.proxies_.append(await self.handle(response))
         return re.findall(pattern, ''.join(self.proxies_))
@@ -290,7 +290,7 @@ class FreeProxySaleScraper(Scraper):
             count = 0
             proxy = ""
             for cell in row.find_all('div'):
-                async with httpx.AsyncClient(follow_redirects=True,timeout=10) as portclient:
+                async with httpx.AsyncClient(limits=httpx.Limits(max_connections=None, max_keepalive_connections=20)) as portclient:
                     if count>2:
                         break
                     elif count ==0:
