@@ -31,6 +31,7 @@ class Scraper():
         self.proxies_ = []
         self.usagents = self.get_user_agents(r'user_agents.txt')
         self.headers = {'User-Agent': random.choice(self.usagents)}
+        self.client = httpx.AsyncClient(limits=httpx.Limits(max_connections=None, max_keepalive_connections=20))
 
     def get_user_agents(self,path_):
         with open('user_agents.txt', 'r') as f:
@@ -58,13 +59,13 @@ class Scraper():
             mylist = [self.__url[(i*len(self.__url))//N:((i+1)*len(self.__url))//N] for i in range(N)]
             for u_ in mylist:
                 for um_ in u_:
-                    async with  httpx.AsyncClient(limits=httpx.Limits(max_connections=None, max_keepalive_connections=20)) as client:
-                        response = await self.get_response(um_,client)
-                        self.proxies_.append(await self.handle(response))
+                    # async with self.client as client_:
+                    response = await self.get_response(um_,self.client)
+                    self.proxies_.append(await self.handle(response))
         else:
-            async with  httpx.AsyncClient(limits=httpx.Limits(max_connections=None, max_keepalive_connections=20)) as client:
-                response = await self.get_response(self._url,client)
-                self.proxies_.append(await self.handle(response))
+            # async with  self.client as client_:
+            response = await self.get_response(self._url,self.client)
+            self.proxies_.append(await self.handle(response))
         return re.findall(pattern, ''.join(self.proxies_))
 
 
@@ -330,7 +331,7 @@ scrapers = [
     ProxyListDownloadScraper("http", "elite"),
     ProxyListDownloadScraper("http", "transparent"),
     ProxyListDownloadScraper("http", "anonymous"),
-    GeneralTableScraper("https", "http://sslproxies.org"),
+    # GeneralTableScraper("https", "http://sslproxies.org"),  #uses cloudflare so it needs another treatment
     GeneralTableScraper("http", "http://free-proxy-list.net"),
     GeneralTableScraper("http", "http://us-proxy.org"),
     GeneralTableScraper("socks", "http://socks-proxy.net"),
