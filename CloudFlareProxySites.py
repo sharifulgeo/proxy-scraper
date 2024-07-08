@@ -22,9 +22,11 @@ class CloudFlareProxySites():
         proxies = set()
         # table_div = soup.find("div", attrs={"class": "table_block"})
         # table = table_div.find("table")
-        table = soup.find_all("table")[0]
-        if not table:
+        tables = soup.find_all("table")
+        if  len(tables)<1:
             pass
+        else:
+            table = tables[0]
         for row in table.findAll("tr")[1:]: ## starting from index 1 to skip table header
             count = 0
             proxy = ""
