@@ -7,6 +7,7 @@ import sys
 import time
 import httpx
 import io
+import random
 import requests
 from bs4 import BeautifulSoup
 print(sys.executable)
@@ -22,12 +23,19 @@ class Scraper():
         pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
     else:
         pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/Cellar/tesseract/5.4.1/bin/tesseract"
+
     def __init__(self, method, _url):
         self.method = method
         self._url = _url
         self.__url = []
         self.proxies_ = []
-        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'}
+        self.usagents = self.get_user_agents(r'user_agents.txt')
+        self.headers = {'User-Agent': random.choice(self.usagents)}
+
+    def get_user_agents(self,path_):
+        with open('user_agents.txt', 'r') as f:
+            usagents = list(map(str.strip,f.readlines()))
+        return usagents
 
     def get_url(self, **kwargs):
         if isinstance(self._url,list):
@@ -451,7 +459,7 @@ if __name__ == "__main__":
     class args_():
         
         def __init__(self):
-            self.proxy = 'http'
+            self.proxy = 'https'
             self.output = "output.txt"
             self.verbose = True    
     
