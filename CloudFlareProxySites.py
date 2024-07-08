@@ -20,8 +20,12 @@ class CloudFlareProxySites():
     def response_processor(self,rsp):
         soup = BeautifulSoup(rsp, "html.parser")
         proxies = set()
-        table = soup.find("table", attrs={"class": "pl proxy-table__main"})
-        for row in table.findAll("tr")[1:]:
+        # table_div = soup.find("div", attrs={"class": "table_block"})
+        # table = table_div.find("table")
+        table = soup.find_all("table")[0]
+        if not table:
+            pass
+        for row in table.findAll("tr")[1:]: ## starting from index 1 to skip table header
             count = 0
             proxy = ""
             for cell in row.findAll("td"):
@@ -34,14 +38,14 @@ class CloudFlareProxySites():
                     if mthd.lower() in self.method:
                         proxies.add(proxy)
                 count += 1
-        self.processed_response = "\n".join(proxies)
+        # self.processed_response = "\n".join(proxies)
         return "\n".join(proxies)
     
     def proxy_collector(self):
         for ur in self.urls:
             self.raw_response =self.scrape_url(ur)
-            # self.processed_response = self.response_processor(self.raw_response)
-            self.proxies.append(re.findall(self.pattern, self.response_processor(self.raw_response)))
+            self.processed_response = self.response_processor(self.raw_response)
+            self.proxies.extend(re.findall(self.pattern, self.response_processor(self.processed_response)))
 
 cls = CloudFlareProxySites()
 cls.urls = ["https://hide.mn/en/proxy-list/#list"]
