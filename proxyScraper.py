@@ -325,6 +325,7 @@ scrapers = [
     #"https://proxy-port.com/en/free-proxy-list"
     #"https://www.pyproxy.com/proxyfree/"
     #"https://www.proxydocker.com/en/proxylist/country/All"
+    #"https://hide.mn/en/proxy-list/"
 
 
 ]
