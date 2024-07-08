@@ -17,8 +17,10 @@ import pytesseract  # noqa: E402
 
 
 class Scraper():
-    
-    pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/Cellar/tesseract/5.4.1/bin/tesseract"
+    if platform.system() == 'Windows':
+        pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+    else:
+        pytesseract.pytesseract.tesseract_cmd = r"/opt/homebrew/Cellar/tesseract/5.4.1/bin/tesseract"
     def __init__(self, method, _url):
         self.method = method
         self._url = _url
@@ -285,16 +287,17 @@ class FreeProxySaleScraper(Scraper):
             count = 0
             proxy = ""
             for cell in row.find_all('div'):
-                if count>2:
-                    break
-                elif count ==0:
-                    proxy += cell.text
-                elif count==1:
-                    port_image_url = response.url.scheme+"://"+response.url.host+cell.find('img').attrs['src']
-                    r = httpx.get(port_image_url)
-                    img = Image.open(io.BytesIO(r.content))
-                    proxy +=":"+ pytesseract.image_to_string(img)
-                count += 1
+                with httpx.AsyncClient(follow_redirects=True,timeout=10) as portclient:
+                    if count>2:
+                        break
+                    elif count ==0:
+                        proxy += cell.text
+                    elif count==1:
+                        port_image_url = response.url.scheme+"://"+response.url.host+cell.find('img').attrs['src']
+                        r = portclient.get(port_image_url)
+                        img = Image.open(io.BytesIO(r.content))
+                        proxy +=":"+ pytesseract.image_to_string(img)
+                    count += 1
             if proxy:
                 proxy = proxy.rstrip('\n')
                 proxy_type = row.find('a',attrs={'class':'css-qdp10g'}).text.lower()
@@ -347,6 +350,7 @@ scrapers = [
     FreeProxyWorldScraper("https"),
     FreeProxyWorldScraper("socks4"),
     FreeProxyWorldScraper("socks5"),
+
     ProxyListOrgScraper("http"),
     ProxyListOrgScraper("https"),
 
@@ -362,6 +366,7 @@ scrapers = [
     #"https://www.freeproxy.world/?type=https&anonymity=&country=&speed=&port=&page=1" done---- but no pagination
     #"https://proxy-list.org/english/search.php?search=ssl-no&country=any&type=any&port=any&ssl=no" done---- but no pagination
     #"https://free.proxy-sale.com/en/" done with pagination but slow
+    #"https://hide.mn/en/proxy-list/"
     #"https://www.proxyrack.com/free-proxy-list/"
     #"https://www.lumiproxy.com/free-proxy/"
     #"https://proxy-tools.com/proxy"
@@ -395,7 +400,7 @@ async def scrape(method, output, verbose):
     proxies = []
 
     tasks = []
-    client = httpx.AsyncClient(follow_redirects=True)
+    client = httpx.AsyncClient(follow_redirects=True,timeout=10)
 
     async def scrape_scraper(scraper):
         try:
@@ -443,7 +448,7 @@ if __name__ == "__main__":
     class args_():
         
         def __init__(self):
-            self.proxy = 'https'
+            self.proxy = 'http'
             self.output = "output.txt"
             self.verbose = True    
     
