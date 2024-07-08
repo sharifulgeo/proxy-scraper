@@ -7,6 +7,7 @@ import sys
 import time
 import httpx
 import io
+import requests
 from bs4 import BeautifulSoup
 print(sys.executable)
 try:
@@ -235,8 +236,8 @@ class FreeProxyWorldScraper(Scraper):
 class ProxyListOrgScraper(Scraper):
 
     def __init__(self, method):
-        self.rsp = httpx.get("https://proxy-list.org/english/search.php",headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
-        self.pagersoup = BeautifulSoup(self.rsp , "html.parser")
+        self.rsp = requests.get("https://proxy-list.org/english/search.php",headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
+        self.pagersoup = BeautifulSoup(self.rsp.text , "html.parser")
         self.page_total = int(self.pagersoup.find_all('a',attrs={'class':'item'})[-1].text)
         if method == 'http':
             self.search = "ssl-no"
@@ -271,8 +272,8 @@ class ProxyListOrgScraper(Scraper):
 class FreeProxySaleScraper(Scraper):
         
     def __init__(self, method):
-        self.rsp = httpx.get("https://free.proxy-sale.com/ru/",headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
-        self.pagersoup = BeautifulSoup(self.rsp , "html.parser")
+        self.rsp = requests.get("https://free.proxy-sale.com/ru/",headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'})
+        self.pagersoup = BeautifulSoup(self.rsp.text , "html.parser")
         self.page_total = int(self.pagersoup.find_all('button',attrs={'class':'pagination__item'})[-1].text)
         self.url = [f"https://free.proxy-sale.com/ru/?page={p}"for p in range(1,self.page_total+2)]
         super().__init__(method,self.url)
