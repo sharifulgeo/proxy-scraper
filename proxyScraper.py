@@ -42,18 +42,20 @@ class Scraper():
     async def handle(self, response):
         return response.text
 
-    async def scrape(self, client):
+    async def scrape(self):
         pattern = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}(?::\d{1,5})?")
         if isinstance(self._url,list):
             N=len(self._url)
             mylist = [self.__url[(i*len(self.__url))//N:((i+1)*len(self.__url))//N] for i in range(N)]
             for u_ in mylist:
                 for um_ in u_:
-                    response = await self.get_response(um_,client)
-                    self.proxies_.append(await self.handle(response))
+                    async with  httpx.AsyncClient(follow_redirects=True,timeout=50) as client:
+                        response = await self.get_response(um_,client)
+                        self.proxies_.append(await self.handle(response))
         else:
-            response = await self.get_response(self._url,client)
-            self.proxies_.append(await self.handle(response))
+            async with  httpx.AsyncClient(follow_redirects=True,timeout=50) as client:
+                response = await self.get_response(self._url,client)
+                self.proxies_.append(await self.handle(response))
         return re.findall(pattern, ''.join(self.proxies_))
 
 
@@ -405,7 +407,7 @@ async def scrape(method, output, verbose):
     async def scrape_scraper(scraper):
         try:
             verbose_print(verbose, f"Looking {scraper.get_url()}...\n")
-            proxies.extend(await scraper.scrape(client))
+            proxies.extend(await scraper.scrape())
         except Exception:
             pass
 
