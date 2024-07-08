@@ -400,7 +400,7 @@ async def scrape(method, output, verbose):
     proxies = []
 
     tasks = []
-    client = httpx.AsyncClient(follow_redirects=True,timeout=20)
+    client = httpx.AsyncClient(follow_redirects=True,timeout=50)
 
     async def scrape_scraper(scraper):
         try:
