@@ -287,14 +287,14 @@ class FreeProxySaleScraper(Scraper):
             count = 0
             proxy = ""
             for cell in row.find_all('div'):
-                with httpx.AsyncClient(follow_redirects=True,timeout=10) as portclient:
+                async with httpx.AsyncClient(follow_redirects=True,timeout=10) as portclient:
                     if count>2:
                         break
                     elif count ==0:
                         proxy += cell.text
                     elif count==1:
                         port_image_url = response.url.scheme+"://"+response.url.host+cell.find('img').attrs['src']
-                        r = portclient.get(port_image_url)
+                        r = await portclient.get(port_image_url)
                         img = Image.open(io.BytesIO(r.content))
                         proxy +=":"+ pytesseract.image_to_string(img)
                     count += 1
@@ -400,7 +400,7 @@ async def scrape(method, output, verbose):
     proxies = []
 
     tasks = []
-    client = httpx.AsyncClient(follow_redirects=True,timeout=10)
+    client = httpx.AsyncClient(follow_redirects=True,timeout=20)
 
     async def scrape_scraper(scraper):
         try:
