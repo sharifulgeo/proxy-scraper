@@ -54,6 +54,6 @@ class CloudFlareProxySites(MyException):
             self.proxies.extend(re.findall(self.pattern, self.processed_response))
 
 cls = CloudFlareProxySites()
-cls.urls = ["https://hide.mn/en/proxy-list/#list"]
+cls.urls = [f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,12608,64)]
 cls.proxy_collector()
 print(cls.proxies)
