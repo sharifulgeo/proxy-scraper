@@ -372,7 +372,7 @@ scrapers = [
     # FreeProxySaleScraper("socks4"),
     # FreeProxySaleScraper("socks5"),
 
-    CloudFlareProxySitesRunner("https",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)])
+    CloudFlareProxySitesRunner("https",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*20,64)])
 
     #"http://free-proxy.cz/en/proxylist/country/all/https/ping/all"   very slow so not implemented
     #"https://proxydb.net/?protocol=http"   uses js to render so tough so not implemented

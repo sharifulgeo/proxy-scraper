@@ -15,6 +15,7 @@ class CloudFlareProxySitesScraper(MyException):
         self.scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
         self.url = url #"https://hide.mn/en/proxy-list/#list"
         self.proxies = []
+        self.proxy = ""
         self.raw_response = ''
         self.processed_response =''
         self.pattern = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}(?::\d{1,5})?")
@@ -40,8 +41,14 @@ class CloudFlareProxySitesScraper(MyException):
                     proxy += ":"+cell.text.replace("&nbsp;", "").strip()
                 elif count == 4:
                     mthd = cell.text.replace("&nbsp;", "").strip()
-                    if mthd.lower() in [self.method]:
-                        proxies.add(proxy)
+                
+                    if  isinstance(self.method,list):
+                        if len(m for m in self.method if m in mthd.lower())>0:
+                            proxies.add(proxy)
+                    else:
+                        if self.method in mthd.lower():
+                            proxies.add(proxy)
+                    # print(proxy,mthd)          
                 count += 1
         # self.processed_response = "\n".join(proxies)
         return "\n".join(proxies)
@@ -51,7 +58,7 @@ class CloudFlareProxySitesScraper(MyException):
         self.raw_response= await self.scrape_url(self.url)
         self.processed_response = await self.response_processor(self.raw_response)
         self.proxies.extend(re.findall(self.pattern, self.processed_response))
-        proxies_collected.extend(self.proxies)
+        # proxies_collected.extend(self.proxies)
         return self.proxies
 
     
@@ -61,8 +68,11 @@ class CloudFlareProxySitesRunner(CloudFlareProxySitesScraper):
         self.urls = ulrs   # to changed by the instance classes
         # super().__init__()
     
-    def runner_(self):
-        asyncio.gather(*(CloudFlareProxySitesScraper(self.method,ur).proxy_collector() for ur in self.urls))
+    async def runner_(self):
+        proxies_collected = asyncio.gather(*(CloudFlareProxySitesScraper(self.method,ur).proxy_collector() for ur in self.urls))
+        # proxies_collected.extend(await self.proxies)
+        await proxies_collected
+        print(proxies_collected)
         # for ur in self.urls:
         #     result = CloudFlareProxySitesScraper(self.method,ur).proxy_collector()
         #     proxies_collected.extend(result)
@@ -71,8 +81,8 @@ class CloudFlareProxySitesRunner(CloudFlareProxySitesScraper):
         return self.urls
     
     async def scrape(self):
-        self.runner_()
-        return proxies_collected
+        await self.runner_()
+        return [prxy for sblist in proxies_collected for prxy in sblist]
     
     # async def scrape(self):
     #     # coros = [request_async() for _i in range(10)]
