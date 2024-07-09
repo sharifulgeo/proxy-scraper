@@ -367,7 +367,7 @@ scrapers = [
     # ProxyListOrgScraper("http"),
     # ProxyListOrgScraper("https"),
 
-    # FreeProxySaleScraper("http"),
+    FreeProxySaleScraper("http"),
     # FreeProxySaleScraper("https"),
     # FreeProxySaleScraper("socks4"),
     # FreeProxySaleScraper("socks5"),
