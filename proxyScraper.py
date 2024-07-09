@@ -1,3 +1,4 @@
+from CloudFlareProxySites import CloudFlareProxySitesRunner
 import argparse
 import asyncio
 import base64
@@ -11,7 +12,6 @@ import random
 import requests
 from bs4 import BeautifulSoup
 print(sys.executable)
-from CloudFlareProxySites import *
 try:
     import Image # type: ignore
 except ImportError:
@@ -354,7 +354,7 @@ scrapers = [
     # NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
     # NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
     # NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
-    # AdvanceNameScraper("http"),
+    AdvanceNameScraper("http"),
     # AdvanceNameScraper("https"),
     # AdvanceNameScraper("socks4"),
     # AdvanceNameScraper("socks5"),
@@ -372,7 +372,10 @@ scrapers = [
     # FreeProxySaleScraper("socks4"),
     # FreeProxySaleScraper("socks5"),
 
-    CloudFlareProxySitesRunner("https",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*20,64)])
+    CloudFlareProxySitesRunner("http",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
+    # CloudFlareProxySitesRunner("https",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
+    # CloudFlareProxySitesRunner("socks4",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
+    # CloudFlareProxySitesRunner("socks5",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
 
     #"http://free-proxy.cz/en/proxylist/country/all/https/ping/all"   very slow so not implemented
     #"https://proxydb.net/?protocol=http"   uses js to render so tough so not implemented
@@ -461,7 +464,7 @@ if __name__ == "__main__":
     class args_():
         
         def __init__(self):
-            self.proxy = 'https'
+            self.proxy = 'http'
             self.output = "output.txt"
             self.verbose = True    
     

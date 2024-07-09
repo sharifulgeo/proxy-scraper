@@ -72,7 +72,7 @@ class CloudFlareProxySitesRunner(CloudFlareProxySitesScraper):
         proxies_collected = asyncio.gather(*(CloudFlareProxySitesScraper(self.method,ur).proxy_collector() for ur in self.urls))
         # proxies_collected.extend(await self.proxies)
         await proxies_collected
-        print(proxies_collected)
+        # print(proxies_collected)
         # for ur in self.urls:
         #     result = CloudFlareProxySitesScraper(self.method,ur).proxy_collector()
         #     proxies_collected.extend(result)
