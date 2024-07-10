@@ -332,7 +332,7 @@ scrapers = [
     # ProxyListDownloadScraper("http", "elite"),
     # ProxyListDownloadScraper("http", "transparent"),
     # ProxyListDownloadScraper("http", "anonymous"),
-    # GeneralTableScraper("https", ["http://sslproxies.org"]),  #uses cloudflare so it needs another treatment
+    # CloudFlareProxySitesRunner("https", ["http://sslproxies.org"]),  #uses cloudflare so it needs another treatment
     # GeneralTableScraper("http", "http://free-proxy-list.net"),
     # GeneralTableScraper("http", "http://us-proxy.org"),
     # GeneralTableScraper("socks", "http://socks-proxy.net"),
@@ -354,7 +354,7 @@ scrapers = [
     # NoProtoPlainResponseScraper("http", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/http.txt"),
     # NoProtoPlainResponseScraper("socks4", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks4.txt"),
     # NoProtoPlainResponseScraper("socks5", "https://raw.githubusercontent.com/TheSpeedX/SOCKS-List/master/socks5.txt"),
-    AdvanceNameScraper("http"),
+    # AdvanceNameScraper("http"),
     # AdvanceNameScraper("https"),
     # AdvanceNameScraper("socks4"),
     # AdvanceNameScraper("socks5"),
@@ -364,7 +364,7 @@ scrapers = [
     # FreeProxyWorldScraper("socks4"),
     # FreeProxyWorldScraper("socks5"),
 
-    ProxyListOrgScraper("http"),
+    # ProxyListOrgScraper("http"),
     # ProxyListOrgScraper("https"),
 
     # FreeProxySaleScraper("http"),
@@ -373,7 +373,7 @@ scrapers = [
     # FreeProxySaleScraper("socks5"),
 
     CloudFlareProxySitesRunner("http",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
-    # CloudFlareProxySitesRunner("https",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
+    CloudFlareProxySitesRunner("https",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
     # CloudFlareProxySitesRunner("socks4",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
     # CloudFlareProxySitesRunner("socks5",[f"https://hide.mn/en/proxy-list/?start={rnge}#list" for rnge in range(0,64*2,64)]),
 
